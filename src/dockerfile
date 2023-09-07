@@ -1,6 +1,0 @@
-pip install pandas
-pip install matplotlib
-pip install torch_geometric
-pip install torch_scatter -f https://data.pyg.org/whl/torch-2.0.1%2Bcu118.html
-pip install seaborn
-pip install tensorboardX
