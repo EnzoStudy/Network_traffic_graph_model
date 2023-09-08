@@ -9,9 +9,16 @@ from graph import get_flow_features_values, get_encoded_label
 from data import modify_portscan_attack_behavior
 import configparser
 from sklearn import svm
+import os
+
+source_code_dir = '/home/dev/Network_traffic_graph_model-main/src'
+
+print(os.getcwd())
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read(source_code_dir+"/config.ini")
+
+
 
 model = svm.SVC()
 

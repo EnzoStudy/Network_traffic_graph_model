@@ -13,12 +13,15 @@ from graph import create_networkx_graph
 from plot import plot_networkx_graph
 
 
-
+import os
 
 def main():
+    print('주소')
+    print(os.getcwd())
+
     # Config parameters
     config = configparser.ConfigParser()
-    config.read("config.ini")
+    config.read("./config.ini")
 
     # Create model
     model = GNN(
