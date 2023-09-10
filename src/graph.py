@@ -31,7 +31,7 @@ def get_flow_features():
 def create_labels_encode_map(df):
     """
     데이터 프레임에서
-    공격분류 등 라벨을 딕셔너리 형태로 리턴
+    공격분류를 index 숫자와 딕셔너리 형태로 리턴
     
     Args:
         - df
@@ -40,15 +40,16 @@ def create_labels_encode_map(df):
     """
     
     labels = df[" Label"].unique()
+
     ids = range(len(labels))
     return dict(zip(labels, ids))
 
 
 def create_hosts_ip_nodes(df):
     """
-    Create IP nodes map, this map will include only nodes which represent an IP
-    either source or destination.
-
+    
+    Source IP 와 Destination IP Unique number를 하나씩 부여하고 딕셔너리로 return 하는 함수 
+    
     Args:
         - df
     Returns:
@@ -56,7 +57,9 @@ def create_hosts_ip_nodes(df):
     """
     unique_hosts = set()
     hosts_map = {}
+
     id = 0
+
     # Iterate each row and look into Src and Dst hosts.
     for _, row in df.iterrows():
         src_host = row[" Source IP"]
@@ -74,8 +77,9 @@ def create_hosts_ip_nodes(df):
 
 def create_hosts_ip_port_nodes(df):
     """
-    Create IP/Port nodes map, this map will include only nodes which represent a tuple
-    of (Ip, Port), either source or destination.
+
+    IP와 Port 튜플을 하나의 Node 노드로 구성하여
+    Unique id를 부여하여 딕셔너리 return 
 
     Args:
         - df
@@ -103,8 +107,8 @@ def create_hosts_ip_port_nodes(df):
 
 def get_feature(row, feature_name):
     """
-    Get the feature value and look for edge cases, where this value can be problematic.
-    In case there is an error, return 0 as the feature value.
+    inf, nan 등을 0으로 대치하는 함수
+    그 외에는 기본 값 유지 
 
     Args:
         - row: dataframe row
@@ -151,6 +155,9 @@ def get_encoded_label(row, labels_encode_map):
 
 def create_flow_nodes(df):
     """
+    unique 한 Flow ID 마다 x,y를 만들고 ,
+    flow_id : index number를 return 하는 함수 
+
     Args:
         - df
     Returns:
@@ -158,19 +165,20 @@ def create_flow_nodes(df):
         - x: flow features tensor -> [N of flows, Features per flow].
         - y: flows labels tensor -> [N of flows] (each position contains the encoded label associated to each flow)
     """
-    labels_encode_map = create_labels_encode_map(df)
+    labels_encode_map = create_labels_encode_map(df)   # {label class : index} 꼴의 딕셔너리
     unique_flows = set()
     flows_map = {}
     i = 0
     x, y = [], []
+
     for _, row in df.iterrows():
         flow_id = row["Flow ID"]
         if flow_id not in unique_flows:
             flows_map[flow_id] = i
             i = i + 1
             unique_flows.add(flow_id)
-            x.append(get_flow_features_values(row, flow_features))
-            y.append(get_encoded_label(row, labels_encode_map))
+            x.append(get_flow_features_values(row, flow_features)) # feature value 형태로 만들어 x에 넣음 
+            y.append(get_encoded_label(row, labels_encode_map))    # label의 index 숫자로 대치하여 넣음 
     return torch.FloatTensor(x), torch.LongTensor(y), flows_map
 
 
@@ -192,6 +200,7 @@ def create_edge_index(df, hosts_ip_map, hosts_ip_port_map, flows_map):
     Returns:
         - 4 Long Tensors corresponsing to each of the edge indexes (COO format)
     """
+
     src0, dst0 = [], []
     src1, dst1 = [], []
     src2, dst2 = [], []

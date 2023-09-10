@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
 import random
+from sklearn.model_selection import train_test_split
+
 
 
 def load_csv_to_df(file_path):
@@ -112,3 +114,20 @@ def modify_portscan_attack_behavior(df):
                     random.randint(0, 100)
 
     return df
+
+
+
+def train_test_split_stratify(df,split_rate,target_columns=' Label'):
+    '''
+    데이터 분포에 맞게 train, test split
+    Args:
+        - df : dataset
+        - split_rate : train _ test data set split rate
+    Returns:
+        - train : dataset
+        - test : dataset
+    '''
+
+    train, test= train_test_split(df, test_size=0.2, random_state=2023, stratify = df[target_columns])
+
+    return train,test

@@ -29,4 +29,6 @@ RUN pip install matplotlib
 RUN pip install torch_geometric 
 RUN pip install torch_scatter -f https://data.pyg.org/whl/torch-2.0.1%2Bcu118.html 
 RUN pip install seaborn 
+RUN pip install tensorflow
+RUN pip install keras
 RUN pip install tensorboardX 

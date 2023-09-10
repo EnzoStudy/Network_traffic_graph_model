@@ -58,7 +58,7 @@ def compute_confusion_matrix(y_true, y_pred, classes):
         - y_pred: predicted label values.
         - classes: classification labels.
     """
-    cf_matrix = confusion_matrix(y_true.numpy(), y_pred.numpy())
+    cf_matrix = confusion_matrix(np.array(y_true), np.array(y_pred))
     df_cm = pd.DataFrame(cf_matrix, index=[i for i in classes],
                          columns=[i for i in classes])
     plot_confusion_matrix(df_cm)
