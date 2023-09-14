@@ -32,7 +32,10 @@ def create_labels_encode_map(df):
     """
     데이터 프레임에서
     공격분류를 index 숫자와 딕셔너리 형태로 리턴
-    
+    ex)    
+        A공격 => 0
+        B공격 => 1
+
     Args:
         - df
     Returns:
@@ -49,7 +52,7 @@ def create_hosts_ip_nodes(df):
     """
     
     Source IP 와 Destination IP Unique number를 하나씩 부여하고 딕셔너리로 return 하는 함수 
-    
+
     Args:
         - df
     Returns:
@@ -137,9 +140,9 @@ def get_flow_features_values(row, flow_features):
     """
     flow_features_values = []
     for feature_name in flow_features:
-        flow_features_values.append(get_feature(row, feature_name))
+        flow_features_values.append(get_feature(row, feature_name)) # inf, nan은 0으로 대치하고 나머지는 다시 value로 넣음
 
-    return flow_features_values
+    return flow_features_values 
 
 
 def get_encoded_label(row, labels_encode_map):
@@ -147,6 +150,10 @@ def get_encoded_label(row, labels_encode_map):
     Args:
         -row: dataframe row
         - labels_encode_map: mapping of label name to label identifier (integer)
+
+    ex) row = 'A공격' , labels_encode_map = {A공격 :0, B공격 :1, ...}
+      ==> result  : 0
+
     Returns:
         - label identifier
     """
@@ -165,7 +172,7 @@ def create_flow_nodes(df):
         - x: flow features tensor -> [N of flows, Features per flow].
         - y: flows labels tensor -> [N of flows] (each position contains the encoded label associated to each flow)
     """
-    labels_encode_map = create_labels_encode_map(df)   # {label class : index} 꼴의 딕셔너리
+    labels_encode_map = create_labels_encode_map(df)   # {Target class : index} 꼴의 딕셔너리
     unique_flows = set()
     flows_map = {}
     i = 0
@@ -178,8 +185,11 @@ def create_flow_nodes(df):
             i = i + 1
             unique_flows.add(flow_id)
             x.append(get_flow_features_values(row, flow_features)) # feature value 형태로 만들어 x에 넣음 
-            y.append(get_encoded_label(row, labels_encode_map))    # label의 index 숫자로 대치하여 넣음 
-    return torch.FloatTensor(x), torch.LongTensor(y), flows_map
+            y.append(get_encoded_label(row, labels_encode_map))    # target의 class를 index 숫자로 대치하여 넣음 
+
+    return torch.FloatTensor(x), torch.LongTensor(y), flows_map  #Featue value  /  Target  / {flow id : unique number}
+
+
 
 
 def create_edge_index(df, hosts_ip_map, hosts_ip_port_map, flows_map):
@@ -257,14 +267,16 @@ def create_hetero_graph(df):
     Args:
         - df
     Returns:
-        - PyG HeteroData object containing edges and nodes (host and connection types)
+        - HeteroData object containing edges and nodes (host and connection types)
     """
-    hosts_ip = create_hosts_ip_nodes(df)
-    hosts_ip_port = create_hosts_ip_port_nodes(df)
-    x_hosts_ip = get_hosts_tensor(128, hosts_ip)
-    x_hosts_ip_port = get_hosts_tensor(128, hosts_ip_port)
+    hosts_ip = create_hosts_ip_nodes(df)  # ip : unique number 딕셔너리 생성 
+    hosts_ip_port = create_hosts_ip_port_nodes(df) # (ip,port) : unique number 딕셔너리 생성 
 
-    x_flows, y_flows, flows_map = create_flow_nodes(df)
+    x_hosts_ip = get_hosts_tensor(128, hosts_ip) # host ip 기준으로 tensor 생성
+    x_hosts_ip_port = get_hosts_tensor(128, hosts_ip_port) # Ip와 Port 기준으로 tensor 생성 
+
+    x_flows, y_flows, flows_map = create_flow_nodes(df)  # X , Y , {flow id : unique num }
+
     ip_to_port, port_to_flow, flow_to_port, port_to_ip = create_edge_index(
         df, hosts_ip, hosts_ip_port, flows_map)
 
