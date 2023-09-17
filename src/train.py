@@ -13,12 +13,15 @@ from sklearn.utils import shuffle
 from torch_geometric.loader import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
 
 def main():
     # Config parameters
     config = configparser.ConfigParser()
-    config.read("./config.ini")
+    config.read("./dev/src/config.ini")
+
+    print('주소')
+    print(os.getcwd())
 
     # Load training dataframe
     df = load_csv_to_df(
@@ -30,8 +33,8 @@ def main():
     # Shuffle df
     df = shuffle(df)
     df.reset_index(inplace=True)
-    df = df.drop(['Unnamed: 0'], axis=1)
-    df = df.drop(['index'], axis=1)
+    # df = df.drop(['Unnamed: 0'], axis=1)
+    # df = df.drop(['index'], axis=1)
     n_nodes = int(config["PARAMETERS"]["NumberOfNodes"])
     total = len(df)
 

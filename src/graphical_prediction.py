@@ -21,7 +21,21 @@ def main():
 
     # Config parameters
     config = configparser.ConfigParser()
-    config.read("./config.ini")
+    config.read("/home/dev/src/config.ini")
+
+    # # Create model
+    # model = GNN(
+    #     input_channels=int(config["PARAMETERS"]["NInputFeatures"]),
+    #     hidden_channels=128,
+    #     output_channels=int(config["PARAMETERS"]["NClasses"]),
+    #     dropout=0)
+
+    # # Load state dict of saves model
+    # model.load_state_dict(torch.load(config["PARAMETERS"]["ModelPath"]))
+
+    # # Validate model on unseen data
+    # df = load_csv_to_df(
+    #     config["PARAMETERS"]["DataFolderPath"] + config["PARAMETERS"]["EvalFile"])
 
     # Create model
     model = GNN(
@@ -39,8 +53,9 @@ def main():
 
     # Create graph
     # Example: A graph representing some PortScan traces
-    df = sample_df(df, 0.005)
-    df = df.loc[df[" Label"] == "PortScan"]
+    df = sample_df(df, 0.05)
+    # df = df.loc[df[' Label']=='PortScan']
+
 
     hetero_data = create_hetero_graph(df)
     predicted_flow_labels = predict_graph(

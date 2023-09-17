@@ -190,8 +190,6 @@ def create_flow_nodes(df):
     return torch.FloatTensor(x), torch.LongTensor(y), flows_map  #Featue value  /  Target  / {flow id : unique number}
 
 
-
-
 def create_edge_index(df, hosts_ip_map, hosts_ip_port_map, flows_map):
     """
     This method creates edge indexes for the 4 different type of edges we can have in the graph:
@@ -275,7 +273,7 @@ def create_hetero_graph(df):
     x_hosts_ip = get_hosts_tensor(128, hosts_ip) # host ip 기준으로 tensor 생성
     x_hosts_ip_port = get_hosts_tensor(128, hosts_ip_port) # Ip와 Port 기준으로 tensor 생성 
 
-    x_flows, y_flows, flows_map = create_flow_nodes(df)  # X , Y , {flow id : unique num }
+    x_flows, y_flows, flows_map = create_flow_nodes(df)  # X, Y , {flow id : unique num }
 
     ip_to_port, port_to_flow, flow_to_port, port_to_ip = create_edge_index(
         df, hosts_ip, hosts_ip_port, flows_map)
@@ -320,6 +318,7 @@ def create_networkx_graph(df, flow_labels):
         colors.append("blue")
 
     for flow in flows_map.keys():
+        # G.add_node(flow)
         if flow_labels[flows_map[flow]] == 0:
             colors.append("green")
         else:

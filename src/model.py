@@ -143,6 +143,7 @@ class GNN(nn.Module):
 
 
 def train(model, hetero_data, optimizer):
+    
     """
     Args:
         - model: GNN model.
@@ -151,6 +152,7 @@ def train(model, hetero_data, optimizer):
     Returns:
         - Cross Entropy Loss.
     """
+
     crit = torch.nn.CrossEntropyLoss()
     model.train()
     optimizer.zero_grad()
